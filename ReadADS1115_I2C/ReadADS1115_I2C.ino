@@ -20,7 +20,7 @@ void setup() {
     if (!ads.begin()) {
     Serial.println("Failed to initialize ADS1115!");
     while (1);
-  }
+    }
 
   // for (int i = 0; i <= 9999; i++) {
   //   int16_t adcValue = ads.readADC_SingleEnded(1);  // Read from channel 0
