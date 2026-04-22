@@ -6,7 +6,7 @@ MovingAverageFilter::MovingAverageFilter() : index(0), bufferFilled(false) {
     }
 }
 
-void MovingAverageFilter::addValue(uint64_t value) {
+void MovingAverageFilter::addValue(uint32_t value) {
     window[index] = value;
     index = (index + 1) % WINDOW_SIZE;
     
@@ -19,7 +19,7 @@ float MovingAverageFilter::calculateFilteredValue() {
     if (!bufferFilled) {
         int validCount = index == 0 ? WINDOW_SIZE : index;
 
-        uint64_t sum = 0;
+        uint32_t sum = 0;
 
         for (int i = 0; i < validCount; i++) {
             sum += window[i];
@@ -38,7 +38,7 @@ float MovingAverageFilter::calculateFilteredValue() {
         for (int j = 0; j < WINDOW_SIZE - i - 1; j++) {
             if (sortedWindow[j] > sortedWindow[j + 1]) {
                 // Swap
-                uint64_t temp = sortedWindow[j];
+                uint32_t temp = sortedWindow[j];
                 sortedWindow[j] = sortedWindow[j + 1];
                 sortedWindow[j + 1] = temp;
             }
@@ -46,7 +46,7 @@ float MovingAverageFilter::calculateFilteredValue() {
     }
 
     // Calculate sum excluding smallest and largest (outliers)
-    uint64_t sum = 0;
+    uint32_t sum = 0;
     for (int i = 1; i < WINDOW_SIZE - 1; i++) {
         sum += sortedWindow[i];
     }
