@@ -54,6 +54,9 @@
 SPISettings ADC_SPI_SETTINGS(2000000, MSBFIRST, SPI_MODE1);   // ADC SPI settings
 SPISettings LCD_SPI_SETTINGS(80000000, MSBFIRST, SPI_MODE3);   // LCD SPI settings
 
+SPISettings ADC_SPI_SETTINGS(2000000, MSBFIRST, SPI_MODE1);   // ADC SPI settings
+SPISettings LCD_SPI_SETTINGS(80000000, MSBFIRST, SPI_MODE3);   // LCD SPI settings
+
 Protocentral_ADS1220 pc_ads1220;
 MovingAverageFilter filter;
 Adafruit_ST7789 display(LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN);
@@ -98,7 +101,7 @@ void loop()
 
       Serial.print(count);
       Serial.print(" ");
-      Serial.println(adc_data);
+      //Serial.println(adc_data);
       //Serial.print(" ");
       //Serial.println(filteredValue, 0);
       count += 1;     
