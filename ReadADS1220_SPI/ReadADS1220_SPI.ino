@@ -45,14 +45,11 @@
 #define VFSR         VREF/PGA
 #define FULL_SCALE   (((long int)1<<23)-1)
 
-#define ADS1220_CS_PIN    7
-#define ADS1220_DRDY_PIN  8
-#define LCD_CS_PIN        6
-#define LCD_DC_PIN        5
-#define LCD_RST_PIN       4
-
-SPISettings ADC_SPI_SETTINGS(2000000, MSBFIRST, SPI_MODE1);   // ADC SPI settings
-SPISettings LCD_SPI_SETTINGS(80000000, MSBFIRST, SPI_MODE3);   // LCD SPI settings
+#define ADS1220_CS_PIN    17
+#define ADS1220_DRDY_PIN  2
+#define LCD_CS_PIN        7
+#define LCD_DC_PIN        8
+#define LCD_RST_PIN       9
 
 SPISettings ADC_SPI_SETTINGS(2000000, MSBFIRST, SPI_MODE1);   // ADC SPI settings
 SPISettings LCD_SPI_SETTINGS(80000000, MSBFIRST, SPI_MODE3);   // LCD SPI settings
@@ -99,8 +96,8 @@ void loop()
       filter.addValue(adc_data);
       float filteredValue = filter.calculateFilteredValue();
 
-      Serial.print(count);
-      Serial.print(" ");
+      //Serial.print(count);
+      //Serial.print(" ");
       //Serial.println(adc_data);
       //Serial.print(" ");
       //Serial.println(filteredValue, 0);
