@@ -50,6 +50,8 @@
 #define LCD_CS_PIN        7
 #define LCD_DC_PIN        8
 #define LCD_RST_PIN       9
+#define ZERO_BUTTON_PIN   5
+#define RESET_BUTTON_PIN  6
 
 SPISettings ADC_SPI_SETTINGS(2000000, MSBFIRST, SPI_MODE1);   // ADC SPI settings
 SPISettings LCD_SPI_SETTINGS(80000000, MSBFIRST, SPI_MODE3);   // LCD SPI settings
@@ -58,9 +60,19 @@ Protocentral_ADS1220 pc_ads1220;
 MovingAverageFilter filter;
 Adafruit_ST7789 display(LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN);
 
-uint32_t adc_data;
+int32_t adc_data;
+int32_t zero;
+float conversion = 6.0 / (4367025 - 4121339);
+float currentReading; 
+float reading_kg;
+float currentMax = 0;
 volatile bool drdyIntrFlag = false;
 int count = 0;
+int startupReadings = 20;
+bool zeroButtonState = 0; 
+bool resetButtonState = 0;
+float filteredValue = 0;
+float torqueLength = 0.294;   //m
 
 void drdyInterruptHndlr(){
   drdyIntrFlag = true;
@@ -80,38 +92,95 @@ void setup()
 
   pc_ads1220.PrintRegisterValues(); 
   enableInterruptPin();
+  pinMode(ZERO_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
+
+  int32_t total = 0;
+
+  delay(100);
+
+  for (int i = 0; i < startupReadings; i++) {
+    SPI.beginTransaction(ADC_SPI_SETTINGS); 
+    total += -1 * pc_ads1220.Read_Data_Samples();        //pulls CS pin to low, reads data, pulls pin high again. Library manages CS toggling internally
+    SPI.endTransaction();
+    Serial.print(total);
+    Serial.print(" ");
+    delay(100); // small delay between readings
+  }
+
+  zero = total / startupReadings; 
+  Serial.print("Average: ");
+  Serial.println(zero);
 
   delay(100);
 }
 
 void loop()
 {
-   if(drdyIntrFlag){
-      drdyIntrFlag = false;
+  if(drdyIntrFlag){
+    drdyIntrFlag = false;
 
-      SPI.beginTransaction(ADC_SPI_SETTINGS); 
-      adc_data = pc_ads1220.Read_Data_Samples();        //pulls CS pin to low, reads data, pulls pin high again. Library manages CS toggling internally
-      SPI.endTransaction();
+    SPI.beginTransaction(ADC_SPI_SETTINGS); 
+    adc_data = -1 * pc_ads1220.Read_Data_Samples();        //pulls CS pin to low, reads data, pulls pin high again. Library manages CS toggling internally
+    SPI.endTransaction();
 
-      filter.addValue(adc_data);
-      float filteredValue = filter.calculateFilteredValue();
+    filter.addValue(adc_data); 
+    filteredValue = filter.calculateFilteredValue(); 
+    reading_kg = (filteredValue - zero) * conversion; 
+    currentReading = roundToHalf(reading_kg * 9.81 * torqueLength); 
 
-      //Serial.print(count);
-      //Serial.print(" ");
-      //Serial.println(adc_data);
-      //Serial.print(" ");
-      //Serial.println(filteredValue, 0);
-      count += 1;     
-    }
+    Serial.print(count);
+    // Serial.print(" ");
+    // Serial.println(adc_data);
+    Serial.print(" ");
+    Serial.print(currentReading);
+    Serial.print(" ");
+    Serial.println(filteredValue, 0);
+    count += 1;     
+  }
+
+  if(abs(currentReading) > abs(currentMax)) {
+    currentMax = currentReading;
+    updateMaxReading(currentMax);
+  }
+
+  zeroButtonState = digitalRead(ZERO_BUTTON_PIN);
+  resetButtonState = digitalRead(RESET_BUTTON_PIN);
+
+  if (zeroButtonState == LOW) {
+    zeroSystem(filteredValue);
+  } 
+
+  if (resetButtonState == LOW) {
+    updateMaxReading(0);
+    currentMax = 0;
+  }
 
   SPI.beginTransaction(LCD_SPI_SETTINGS);
-  display.setCursor(20, 50);
   display.setTextColor(ST77XX_BLACK, ST77XX_WHITE);
   display.setTextSize(4);
-  display.print(adc_data);
+  display.setCursor(10, 100);
+  display.print(String(currentReading, 1) + "   ");
   SPI.endTransaction();
 
   delay(100); 
+}
+
+void zeroSystem(float filteredValue) {
+  zero = filteredValue; 
+}
+
+float roundToHalf(float value) {
+  return round(value*2) / 2.0;
+}
+
+void updateMaxReading(float reading) {
+  SPI.beginTransaction(LCD_SPI_SETTINGS);
+  display.setTextColor(ST77XX_BLACK, ST77XX_WHITE);
+  display.setTextSize(4);
+  display.setCursor(10, 200);
+  display.print(String(reading, 1) + "   ");
+  SPI.endTransaction();
 }
 
 void setupADC() {
@@ -133,5 +202,34 @@ void setupLCD() {
   display.setTextSize(2);
   display.setCursor(10, 10);
   display.print("Ankle Dynamometer");
+  display.setCursor(0, 30);
+  display.print("--------------------");
+  
+  display.setCursor(10, 60);
+  display.setTextColor(ST77XX_BLACK, ST77XX_WHITE);
+  display.setTextSize(3);
+  display.print("Current:");
+  display.setCursor(180, 108);
+  display.print("Nm");
+  display.setCursor(10, 100);
+  display.setTextSize(4);
+  display.print(String(currentReading, 1) + "   ");
+
+  display.setCursor(10, 160);
+  display.setTextColor(ST77XX_BLACK, ST77XX_WHITE);
+  display.setTextSize(3);
+  display.print("Max:");
+  display.setCursor(180, 208);
+  display.print("Nm");
+  display.setCursor(10, 200);
+  display.setTextSize(4);
+  display.print(String(currentMax, 1) + "   ");
+
+  display.setTextColor(ST77XX_BLACK, ST77XX_WHITE);
+  display.setTextSize(1);
+  display.setCursor(10, 300);
+  display.print("Any questions contact:");
+  display.setCursor(10, 310);
+  display.print("tod.vandenberg@ahs.ca");
 }
 
