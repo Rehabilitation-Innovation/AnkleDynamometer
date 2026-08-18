@@ -1,4 +1,3 @@
-// Moving average filter with outlier removal
 #ifndef MOVINGAVERAGEFILTER_H
 #define MOVINGAVERAGEFILTER_H
 

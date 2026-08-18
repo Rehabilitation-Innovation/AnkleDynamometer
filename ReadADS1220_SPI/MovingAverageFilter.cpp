@@ -28,12 +28,12 @@ float MovingAverageFilter::calculateFilteredValue() {
         return (float)sum / validCount;
     }
         
-    // Create a copy of the window for sorting
+    // Creating a window for sorting
     for (int i = 0; i < WINDOW_SIZE; i++) {
         sortedWindow[i] = window[i];
     }
     
-    // Sort the array (bubble sort - simple for small arrays)
+    // Sort the array
     for (int i = 0; i < WINDOW_SIZE - 1; i++) {
         for (int j = 0; j < WINDOW_SIZE - i - 1; j++) {
             if (sortedWindow[j] > sortedWindow[j + 1]) {
@@ -45,7 +45,7 @@ float MovingAverageFilter::calculateFilteredValue() {
         }
     }
 
-    // Calculate sum excluding smallest and largest (outliers)
+    // Calculate sum without the smallest and largest (outliers)
     uint32_t sum = 0;
     for (int i = 1; i < WINDOW_SIZE - 1; i++) {
         sum += sortedWindow[i];
@@ -55,6 +55,7 @@ float MovingAverageFilter::calculateFilteredValue() {
     return (float)sum / (WINDOW_SIZE - 2);
 }
 
+// If I wanted to reset the filter
 void MovingAverageFilter::clear() {
     index = 0;
     bufferFilled = false;
