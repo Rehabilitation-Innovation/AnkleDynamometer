@@ -721,7 +721,7 @@
 		(descr "Tantalum Capacitor SMD Kemet-A (3216-18 Metric), IPC_7351 nominal, (Body size from: http://www.kemet.com/Lists/ProductCatalog/Attachments/253/KEM_TC101_STD.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor tantalum")
 		(property "Reference" "C12"
-			(at -1.9012 -1.778 0)
+			(at 2.9248 1.3208 0)
 			(layer "F.SilkS")
 			(uuid "f0eda34a-4fe1-42b9-89d2-efef19d07a98")
 			(effects
@@ -10611,6 +10611,19 @@
 			(justify left bottom)
 		)
 	)
+	(gr_text "-\n\n+"
+		(at 87.122 118.0084 0)
+		(layer "F.SilkS")
+		(uuid "56e7e7e3-1f0e-4eba-a018-42df2a72bd05")
+		(effects
+			(font
+				(size 0.8128 0.8128)
+				(thickness 0.1524)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
 	(gr_text "+\n\n-"
 		(at 85.6996 137.16 90)
 		(layer "F.SilkS")
@@ -10644,6 +10657,19 @@
 		(effects
 			(font
 				(size 1 1)
+				(thickness 0.1524)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
+	(gr_text "+  -"
+		(at 89.0016 116.4844 0)
+		(layer "F.SilkS")
+		(uuid "d58a9a90-5c08-40b0-b453-8664d35d1271")
+		(effects
+			(font
+				(size 0.8128 0.8128)
 				(thickness 0.1524)
 				(bold yes)
 			)
